@@ -200,20 +200,21 @@ open class AlamofireRequestBuilder<T>: RequestBuilder<T> {
             validatedRequest.responseData(completionHandler: { (voidResponse) in
                 cleanupRequest()
 
-                if voidResponse.result.isFailure {
+                switch voidResponse.result {
+                case let .failure(error):
                     completion(
                         nil,
-                        ErrorResponse.error(voidResponse.response?.statusCode ?? 500, voidResponse.data, voidResponse.result.error!)
+                        ErrorResponse.error(voidResponse.response?.statusCode ?? 500, voidResponse.data, error)
                     )
                     return
+                case let .success(data):
+                    completion(
+                        Response(
+                            response: voidResponse.response!,
+                            body: nil),
+                        nil
+                    )
                 }
-
-                completion(
-                    Response(
-                        response: voidResponse.response!,
-                        body: nil),
-                    nil
-                )
             })
         default:
             validatedRequest.responseData(completionHandler: { (dataResponse) in
