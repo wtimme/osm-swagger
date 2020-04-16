@@ -10,5 +10,5 @@ Pod::Spec.new do |s|
   s.homepage = 'https://github.com/wtimme/osm-swagger'
   s.summary = 'Auto-generated API client for OpenStreetMap'
   s.source_files = 'OpenStreetMap/Classes/**/*.swift'
-  s.dependency 'Alamofire', '~> 4.9.0'
+  s.dependency 'Alamofire', '~> 5.1.0'
 end
