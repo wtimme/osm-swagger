@@ -113,7 +113,7 @@ open class AlamofireRequestBuilder<T>: RequestBuilder<T> {
 
     fileprivate func processRequest(request: DataRequest, _ managerId: String, _ completion: @escaping (_ response: Response<T>?, _ error: Error?) -> Void) {
         if let credential = self.credential {
-            request.authenticate(usingCredential: credential)
+            request.authenticate(with: credential)
         }
 
         let cleanupRequest = {
@@ -317,7 +317,7 @@ open class AlamofireDecodableRequestBuilder<T:Decodable>: AlamofireRequestBuilde
 
     override fileprivate func processRequest(request: DataRequest, _ managerId: String, _ completion: @escaping (_ response: Response<T>?, _ error: Error?) -> Void) {
         if let credential = self.credential {
-            request.authenticate(usingCredential: credential)
+            request.authenticate(with: credential)
         }
 
         let cleanupRequest = {
