@@ -90,7 +90,7 @@ open class AlamofireRequestBuilder<T>: RequestBuilder<T> {
                         fatalError("Unprocessable value \(v) with key \(k)")
                     }
                 }
-                }, to: URLString, method: xMethod!, headers: nil, encodingCompletion: { encodingResult in
+                }, to: URLString, method: xMethod, headers: nil, encodingCompletion: { encodingResult in
                 switch encodingResult {
                 case .success(let upload, _, _):
                     if let onProgressReady = self.onProgressReady {
@@ -102,7 +102,7 @@ open class AlamofireRequestBuilder<T>: RequestBuilder<T> {
                 }
             })
         } else {
-            let request = makeRequest(manager: manager, method: xMethod!, encoding: encoding, headers: headers)
+            let request = makeRequest(manager: manager, method: xMethod, encoding: encoding, headers: headers)
             if let onProgressReady = self.onProgressReady {
                 onProgressReady(request.progress)
             }
