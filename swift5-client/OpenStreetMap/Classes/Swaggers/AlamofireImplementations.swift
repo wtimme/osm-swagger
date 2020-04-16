@@ -333,21 +333,22 @@ open class AlamofireDecodableRequestBuilder<T:Decodable>: AlamofireRequestBuilde
             validatedRequest.responseString(completionHandler: { (stringResponse) in
                 cleanupRequest()
 
-                if stringResponse.result.isFailure {
+                switch stringResponse.result {
+                case let .failure(error):
                     completion(
                         nil,
-                        ErrorResponse.error(stringResponse.response?.statusCode ?? 500, stringResponse.data, stringResponse.result.error!)
+                        ErrorResponse.error(stringResponse.response?.statusCode ?? 500, stringResponse.data, error)
                     )
                     return
+                case let .success(value):
+                    completion(
+                        Response(
+                            response: stringResponse.response!,
+                            body: (value as! T)
+                        ),
+                        nil
+                    )
                 }
-
-                completion(
-                    Response(
-                        response: stringResponse.response!,
-                        body: ((stringResponse.result.value ?? "") as! T)
-                    ),
-                    nil
-                )
             })
         case is Void.Type:
             validatedRequest.responseData(completionHandler: { (voidResponse) in
