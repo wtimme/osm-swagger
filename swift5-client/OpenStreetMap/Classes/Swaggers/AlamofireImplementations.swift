@@ -34,7 +34,7 @@ open class AlamofireRequestBuilder<T>: RequestBuilder<T> {
      */
     open func createSessionManager() -> Alamofire.Session {
         let configuration = URLSessionConfiguration.default
-        configuration.httpAdditionalHeaders = buildHeaders()
+        configuration.httpAdditionalHeaders = buildHeaders().dictionary
         return Alamofire.Session(configuration: configuration)
     }
 
@@ -237,8 +237,8 @@ open class AlamofireRequestBuilder<T>: RequestBuilder<T> {
         }
     }
 
-    open func buildHeaders() -> [String: String] {
-        var httpHeaders = Session.defaultHTTPHeaders
+    open func buildHeaders() -> HTTPHeaders {
+        var httpHeaders = HTTPHeaders.default
         for (key, value) in self.headers {
             httpHeaders[key] = value
         }
