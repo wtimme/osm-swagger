@@ -152,42 +152,43 @@ open class AlamofireRequestBuilder<T>: RequestBuilder<T> {
 
                 do {
 
-                    guard !dataResponse.result.isFailure else {
+                    switch dataResponse.result {
+                    case .failure(_):
                         throw DownloadException.responseFailed
+                    case let .success(data):
+                        guard !data.isEmpty else {
+                            throw DownloadException.responseDataMissing
+                        }
+
+                        guard let request = request.request else {
+                            throw DownloadException.requestMissing
+                        }
+
+                        let fileManager = FileManager.default
+                        let urlRequest = try request.asURLRequest()
+                        let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
+                        let requestURL = try self.getURL(from: urlRequest)
+
+                        var requestPath = try self.getPath(from: requestURL)
+
+                        if let headerFileName = self.getFileName(fromContentDisposition: dataResponse.response?.allHeaderFields["Content-Disposition"] as? String) {
+                            requestPath = requestPath.appending("/\(headerFileName)")
+                        }
+
+                        let filePath = documentsDirectory.appendingPathComponent(requestPath)
+                        let directoryPath = filePath.deletingLastPathComponent().path
+
+                        try fileManager.createDirectory(atPath: directoryPath, withIntermediateDirectories: true, attributes: nil)
+                        try data.write(to: filePath, options: .atomic)
+
+                        completion(
+                            Response(
+                                response: dataResponse.response!,
+                                body: (filePath as! T)
+                            ),
+                            nil
+                        )
                     }
-
-                    guard let data = dataResponse.data else {
-                        throw DownloadException.responseDataMissing
-                    }
-
-                    guard let request = request.request else {
-                        throw DownloadException.requestMissing
-                    }
-
-                    let fileManager = FileManager.default
-                    let urlRequest = try request.asURLRequest()
-                    let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask)[0]
-                    let requestURL = try self.getURL(from: urlRequest)
-
-                    var requestPath = try self.getPath(from: requestURL)
-
-                    if let headerFileName = self.getFileName(fromContentDisposition: dataResponse.response?.allHeaderFields["Content-Disposition"] as? String) {
-                        requestPath = requestPath.appending("/\(headerFileName)")
-                    }
-
-                    let filePath = documentsDirectory.appendingPathComponent(requestPath)
-                    let directoryPath = filePath.deletingLastPathComponent().path
-
-                    try fileManager.createDirectory(atPath: directoryPath, withIntermediateDirectories: true, attributes: nil)
-                    try data.write(to: filePath, options: .atomic)
-
-                    completion(
-                        Response(
-                            response: dataResponse.response!,
-                            body: (filePath as! T)
-                        ),
-                        nil
-                    )
 
                 } catch let requestParserError as DownloadException {
                     completion(nil, ErrorResponse.error(400, dataResponse.data, requestParserError))
