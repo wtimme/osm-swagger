@@ -18,7 +18,7 @@ class AlamofireRequestBuilderFactory: RequestBuilderFactory {
 }
 
 // Store manager to retain its reference
-private var managerStore: [String: Alamofire.SessionManager] = [:]
+private var managerStore: [String: Alamofire.Session] = [:]
 
 // Sync queue to manage safe access to the store manager
 private let syncQueue = DispatchQueue(label: "thread-safe-sync-queue", attributes: .concurrent)
@@ -32,10 +32,10 @@ open class AlamofireRequestBuilder<T>: RequestBuilder<T> {
      May be overridden by a subclass if you want to control the session
      configuration.
      */
-    open func createSessionManager() -> Alamofire.SessionManager {
+    open func createSessionManager() -> Alamofire.Session {
         let configuration = URLSessionConfiguration.default
         configuration.httpAdditionalHeaders = buildHeaders()
-        return Alamofire.SessionManager(configuration: configuration)
+        return Alamofire.Session(configuration: configuration)
     }
 
     /**
@@ -53,7 +53,7 @@ open class AlamofireRequestBuilder<T>: RequestBuilder<T> {
      May be overridden by a subclass if you want to control the request
      configuration (e.g. to override the cache policy).
      */
-    open func makeRequest(manager: SessionManager, method: HTTPMethod, encoding: ParameterEncoding, headers: [String:String]) -> DataRequest {
+    open func makeRequest(manager: Session, method: HTTPMethod, encoding: ParameterEncoding, headers: [String:String]) -> DataRequest {
         return manager.request(URLString, method: method, parameters: parameters, encoding: encoding, headers: headers)
     }
 
@@ -238,7 +238,7 @@ open class AlamofireRequestBuilder<T>: RequestBuilder<T> {
     }
 
     open func buildHeaders() -> [String: String] {
-        var httpHeaders = SessionManager.defaultHTTPHeaders
+        var httpHeaders = Session.defaultHTTPHeaders
         for (key, value) in self.headers {
             httpHeaders[key] = value
         }
