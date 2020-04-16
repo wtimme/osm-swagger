@@ -393,7 +393,7 @@ open class AlamofireDecodableRequestBuilder<T:Decodable>: AlamofireRequestBuilde
                 }
             })
         default:
-            validatedRequest.responseData(completionHandler: { (dataResponse: DataResponse<Data>) in
+            validatedRequest.responseData(completionHandler: { (dataResponse: AFDataResponse<Data>) in
                 cleanupRequest()
 
                 guard dataResponse.result.isSuccess else {
