@@ -374,21 +374,22 @@ open class AlamofireDecodableRequestBuilder<T:Decodable>: AlamofireRequestBuilde
             validatedRequest.responseData(completionHandler: { (dataResponse) in
                 cleanupRequest()
 
-                if dataResponse.result.isFailure {
+                switch dataResponse.result {
+                case let .failure(error):
                     completion(
                         nil,
-                        ErrorResponse.error(dataResponse.response?.statusCode ?? 500, dataResponse.data, dataResponse.result.error!)
+                        ErrorResponse.error(dataResponse.response?.statusCode ?? 500, dataResponse.data, error)
                     )
                     return
+                case .success(_):
+                    completion(
+                        Response(
+                            response: dataResponse.response!,
+                            body: (dataResponse.data as! T)
+                        ),
+                        nil
+                    )
                 }
-
-                completion(
-                    Response(
-                        response: dataResponse.response!,
-                        body: (dataResponse.data as! T)
-                    ),
-                    nil
-                )
             })
         default:
             validatedRequest.responseData(completionHandler: { (dataResponse: DataResponse<Data>) in
