@@ -104,7 +104,7 @@ open class AlamofireRequestBuilder<T>: RequestBuilder<T> {
         } else {
             let request = makeRequest(manager: manager, method: xMethod, encoding: encoding, headers: headers)
             if let onProgressReady = self.onProgressReady {
-                onProgressReady(request.progress)
+                onProgressReady(request.downloadProgress)
             }
             processRequest(request: request, managerId, completion)
         }
