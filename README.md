@@ -15,13 +15,13 @@ file and create a pull request.
 
 ### Regenerating the API client
 
-Make sure you are using `swagger-codegen` **3.0.18 or later** and run:
+Make sure you are using `swagger-codegen` **3.0.19 or later** and run:
 
     % swagger-codegen generate -i swagger.yml -l swift5 -c config.json -o swift5-client
 
-#### Getting swagger-codegen 3.0.18 or later
+#### Getting swagger-codegen 3.0.19 or later
 
-At the time of writing, version 3.0.18 (or later) has not been released yet, so it may not be available via Homebrew.
+At the time of writing, version 3.0.19 has not been released yet, so it may not be available via Homebrew.
 
 In that case, just download the JAR, like so:
 
