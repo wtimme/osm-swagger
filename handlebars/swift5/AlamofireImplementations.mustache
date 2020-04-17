@@ -72,35 +72,32 @@ open class AlamofireRequestBuilder<T>: RequestBuilder<T> {
                                                            .map { $0.0 }
 
         if fileKeys.count > 0 {
-            manager.upload(multipartFormData: { mpForm in
-                for (k, v) in self.parameters! {
-                    switch v {
-                    case let fileURL as URL:
-                        if let mimeType = self.contentTypeForFormPart(fileURL: fileURL) {
-                            mpForm.append(fileURL, withName: k, fileName: fileURL.lastPathComponent, mimeType: mimeType)
-                        }
-                        else {
-                            mpForm.append(fileURL, withName: k)
-                        }
-                    case let string as String:
-                        mpForm.append(string.data(using: String.Encoding.utf8)!, withName: k)
-                    case let number as NSNumber:
-                        mpForm.append(number.stringValue.data(using: String.Encoding.utf8)!, withName: k)
-                    default:
-                        fatalError("Unprocessable value \(v) with key \(k)")
-                    }
-                }
-                }, to: URLString, method: xMethod, headers: nil, encodingCompletion: { encodingResult in
-                switch encodingResult {
-                case .success(let upload, _, _):
-                    if let onProgressReady = self.onProgressReady {
-                        onProgressReady(upload.uploadProgress)
-                    }
-                    self.processRequest(request: upload, managerId, completion)
-                case .failure(let encodingError):
-                    completion(nil, ErrorResponse.error(415, nil, encodingError))
-                }
-            })
+          let request = manager.upload(multipartFormData: { mpForm in
+              for (k, v) in self.parameters! {
+                  switch v {
+                  case let fileURL as URL:
+                      if let mimeType = self.contentTypeForFormPart(fileURL: fileURL) {
+                          mpForm.append(fileURL, withName: k, fileName: fileURL.lastPathComponent, mimeType: mimeType)
+                      }
+                      else {
+                          mpForm.append(fileURL, withName: k)
+                      }
+                  case let string as String:
+                      mpForm.append(string.data(using: String.Encoding.utf8)!, withName: k)
+                  case let number as NSNumber:
+                      mpForm.append(number.stringValue.data(using: String.Encoding.utf8)!, withName: k)
+                  default:
+                      fatalError("Unprocessable value \(v) with key \(k)")
+                  }
+              }
+              }, to: URLString, method: xMethod, headers: nil)
+
+          request.uploadProgress { progress in
+              if let onProgressReady = self.onProgressReady {
+                  onProgressReady(progress)
+              }
+          }
+          processRequest(request: request, managerId, completion)
         } else {
             let request = makeRequest(manager: manager, method: xMethod, encoding: encoding, headers: headers)
             if let onProgressReady = self.onProgressReady {
